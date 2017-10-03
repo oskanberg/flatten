@@ -58,6 +58,19 @@ func simulate(sourceFI osabstraction.FileInfo, destinationFI osabstraction.FileI
 	return fmt.Sprintf("%v", tree), nil
 }
 
+func getAbsolutePath(filepath string) (string, error) {
+	if path.IsAbs(filepath) {
+		return filepath, nil
+	}
+
+	p, err := os.Getwd()
+	if err != nil {
+		return p, err
+	}
+
+	return path.Join(p, filepath), nil
+}
+
 func main() {
 	usage := `flatten.
 
@@ -97,6 +110,12 @@ Options:
 		source = p
 	} else {
 		source = src.(string)
+		var err error
+		source, err = getAbsolutePath(source)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
 	}
 
 	dst := arguments["DESTINATION"]
@@ -109,6 +128,12 @@ Options:
 		destination = p
 	} else {
 		destination = dst.(string)
+		var err error
+		destination, err = getAbsolutePath(destination)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
 	}
 
 	verbose := arguments["--verbose"].(bool)
